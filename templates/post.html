@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Записи пользователя {{ author.get_full_name }}{% endblock %}
+{% block header %}Профиль пользователя {{ author.get_full_name }}{% endblock %}
+{% block content %}
+    <main role="main" class="container">
+        <div class="row">
+            {% include "includes/user_card.html" with name_author=author.get_full_name username=author.username post_count=author.posts.count %}
+
+            {% include "includes/post_card.html" with text=post.text username=author.username date=post.pub_date %}
+            {% include "includes/comments.html" %}
+        </div>
+    </main>
+{% endblock %}

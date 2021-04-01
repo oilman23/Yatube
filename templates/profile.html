@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Записи пользователя {{ author.get_full_name }}{% endblock %}
+{% block header %}Профиль пользователя {{ author.get_full_name }}{% endblock %}
+{% block content %}
+<main role="main" class="container">
+    <div class="row">
+            {% include "includes/user_card.html" with name_author=author.get_full_name username=author.username post_count=author.posts.count %}
+
+        <li class="list-group-item">
+    {% if following %}
+    <a class="btn btn-lg btn-light"
+            href="{% url 'profile_unfollow' author.username %}" role="button">
+            Отписаться
+    </a>
+    {% endif %}
+    {% if author != request.user and not following %}
+    <a class="btn btn-lg btn-primary"
+            href="{% url 'profile_follow' author.username %}" role="button">
+    Подписаться
+    </a>
+    {% endif %}
+
+</li>
+        <div class="col-md-9">
+
+            {% for post in page %}
+                    {% include "includes/post_card.html" with text=post.text username=author.username date=post.pub_date %}
+            {% endfor %}
+                    {% include "includes/paginator.html" %}
+     </div>
+    </div>
+</main>
+
+
+{% endblock %}
