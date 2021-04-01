@@ -154,13 +154,13 @@ class PostPagesTests(TestCase):
             reverse("profile_follow",
                     kwargs={"username": PostPagesTests.post.author.username}))
         follow_count_after_follow = Follow.objects.count()
-        self.assertEqual(follow_count+1, follow_count_after_follow)
+        self.assertEqual(follow_count + 1, follow_count_after_follow)
         self.authorized_client.get(
             reverse("profile_unfollow",
                     kwargs={"username": PostPagesTests.post.author.username}))
         follow_count_after_unfollow = Follow.objects.count()
         self.assertEqual(follow_count_after_unfollow,
-                         follow_count_after_follow-1)
+                         follow_count_after_follow - 1)
 
     def test_follow_index(self):
         """Проверяем, что пост у подписанного пользователя появляется в ленте,
@@ -174,6 +174,7 @@ class PostPagesTests(TestCase):
         self.assertEqual(response_follower.context["page"][0],
                          PostPagesTests.post)
         self.assertFalse(response_not_follow.context["page"])
+
 
 class PaginatorViewTest(TestCase):
     @classmethod

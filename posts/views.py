@@ -41,9 +41,8 @@ def profile(request, username):
     paginator = Paginator(user_posts_list, 10)
     page_number = request.GET.get("page")
     page = paginator.get_page(page_number)
-    following = (request.user.is_authenticated and
-                 Follow.objects.filter(user=request.user,
-                                       author__username=username).exists())
+    following = (request.user.is_authenticated and Follow.objects.filter(
+        user=request.user, author__username=username).exists())
     return render(request, "profile.html", {"author": author, "page": page,
                                             "following": following})
 
@@ -82,6 +81,7 @@ def page_not_found(request, exception):
 def server_error(request):
     return render(request, "misc/500.html", status=500)
 
+
 @login_required
 def add_comment(request, username, post_id):
     form = CommentForm(request.POST or None)
@@ -116,6 +116,7 @@ def profile_follow(request, username):
                                                             author=author):
         Follow.objects.create(user=request.user, author=author)
     return redirect("profile", username)
+
 
 @login_required
 def profile_unfollow(request, username):

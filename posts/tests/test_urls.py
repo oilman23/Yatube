@@ -28,14 +28,13 @@ class StaticURLTests(TestCase):
                               ("post",
                                kwargs={"username": self.post.author.username,
                                        "post_id": self.post.id}))
-        self.post_user_edit_url = (reverse
-                                   ("post_edit", kwargs={
-                                       "username": self.post.author.username,
-                                       "post_id": self.post.id}))
-        self.post_comment_url = (reverse
-                                 ("add_comment", kwargs={
-                                       "username": self.post.author.username,
-                                       "post_id": self.post.id}))
+        self.post_user_edit_url = (
+            reverse("post_edit", kwargs={"username": self.post.author.username,
+                                         "post_id": self.post.id}))
+        self.post_comment_url = (
+            reverse("add_comment",
+                    kwargs={"username": self.post.author.username,
+                            "post_id": self.post.id}))
 
     def test_authorized_client_status_code(self):
         """Проверяем статус код страниц для авторизованного пользователя"""

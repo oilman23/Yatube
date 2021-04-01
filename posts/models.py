@@ -41,7 +41,7 @@ class Post(models.Model):
 class Comment(models.Model):
     text = models.TextField(verbose_name="Текст комментария",
                             help_text="Здесь можно написать весь ваш хейт, "
-                                       "похвалу или конструктивную критику")
+                                      "похвалу или конструктивную критику")
     created = models.DateTimeField("date published", auto_now_add=True)
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="comments"
@@ -57,4 +57,4 @@ class Follow(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,
                              related_name="follower")
     author = models.ForeignKey(User, on_delete=models.CASCADE,
-                             related_name="following")
+                               related_name="following")

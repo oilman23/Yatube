@@ -21,4 +21,3 @@ class CommentForm(ModelForm):
         model = Comment
         fields = ("text", )
         widget = {"text": forms.Textarea}
-

@@ -5,8 +5,8 @@ from django.contrib import admin
 from django.urls import include, path
 import posts.views
 
-handler404 = "posts.views.page_not_found" # noqa
-handler500 = "posts.views.server_error" # noqa
+handler404 = "posts.views.page_not_found"
+handler500 = "posts.views.server_error"
 
 urlpatterns = [
     path("admin/", admin.site.urls),
