@@ -32,7 +32,8 @@ class Post(models.Model):
         help_text="Запись можно разместить в группе, если это необходимо"
     )
     image = models.ImageField(
-        upload_to="posts/", blank=True, null=True, verbose_name="Картинка поста"
+        upload_to="posts/", blank=True, null=True,
+        verbose_name="Картинка поста"
     )
 
     def __str__(self):

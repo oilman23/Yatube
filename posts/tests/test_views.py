@@ -63,8 +63,9 @@ class PostPagesTests(TestCase):
         templates_pages_names = {
             "posts/index.html": reverse("index"),
             "posts/new.html": reverse("new_post"),
-            "posts/group.html": reverse("group_posts",
-                                  kwargs={"slug": PostPagesTests.group.slug}),
+            "posts/group.html": reverse(
+                "group_posts", kwargs={"slug": PostPagesTests.group.slug}
+            ),
             "about/author.html": reverse("about:author"),
             "about/tech.html": reverse("about:tech"),
         }
@@ -160,10 +161,11 @@ class PostPagesTests(TestCase):
         content_after_add_post = response_after_add_post.content
         self.assertEqual(content_before_add_post, content_after_add_post)
         cache.clear()
-        response_after_clear_cache = self.authorized_client.get(reverse("index"))
+        response_after_clear_cache = self.authorized_client.get(
+            reverse("index")
+        )
         content_after_clear_cache = response_after_clear_cache.content
         self.assertNotEqual(content_before_add_post, content_after_clear_cache)
-
 
     def test_follow_authorized_user(self):
         """Проверяем, что авторизованный клиент может подписаться"""

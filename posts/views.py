@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.core.paginator import Paginator
 
 from .forms import PostForm, CommentForm
-from .models import Group, Post, User, Comment, Follow
+from .models import Group, Post, User, Follow
 
 
 def index(request):
@@ -43,16 +43,25 @@ def profile(request, username):
     page = paginator.get_page(page_number)
     following = (request.user.is_authenticated and Follow.objects.filter(
         user=request.user, author__username=username).exists())
-    return render(request, "posts/profile.html", {"author": author, "page": page,
-                                            "following": following})
+    context = {
+        "author": author,
+        "page": page,
+        "following": following
+    }
+    return render(request, "posts/profile.html", context)
 
 
 def post_view(request, username, post_id):
     post = get_object_or_404(Post, id=post_id, author__username=username)
     form = CommentForm(request.POST or None)
     comments = post.comments.all()
-    return render(request, "posts/post.html", {"post": post, "author": post.author,
-                                         "comments": comments, "form": form})
+    context = {
+        "post": post,
+        "author": post.author,
+        "comments": comments,
+        "form": form
+    }
+    return render(request, "posts/post.html", context)
 
 
 @login_required
@@ -86,8 +95,9 @@ def server_error(request):
 def add_comment(request, username, post_id):
     form = CommentForm(request.POST or None)
     post = get_object_or_404(Post, id=post_id, author__username=username)
-    #Олег, привет, подскажи для чего мы здесь передаем автора? ведь с таким пост айди только один автор и других быть
-    #не может или я не правильно понимаю?
+    # Олег, привет, подскажи для чего мы здесь передаем автора? ведь с таким
+    # пост айди только один автор и других быть
+    # не может или я не правильно понимаю?
     if not form.is_valid():
         return render(request, "posts/post.html",
                       {"form": form, "post": post, "author": post.author})
