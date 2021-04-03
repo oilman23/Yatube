@@ -7,9 +7,13 @@
     {% include "includes/menu.html" with index=True %}
 
         <h1>Последние обновления на сайте</h1>
-
-        {% include "includes/post_card_index.html" %}
-
+        {% load cache %}
+        {% cache 20 index_page page %}
+        {% for post in page %}
+            {% include "includes/post_card.html" with text=post.text username=post.author.username date=post.pub_date %}
+        {% endfor %}
+        {% endcache %}
+        {% include "includes/paginator.html" %}
     </div>
 
 {% endblock %} 

@@ -18,8 +18,10 @@ class Group(models.Model):
 
 
 class Post(models.Model):
-    text = models.TextField(verbose_name="Текст публикации",
-                            help_text="Здесь можно написать всё, что угодно")
+    text = models.TextField(
+        verbose_name="Текст публикации",
+        help_text="Здесь можно написать всё, что угодно"
+    )
     pub_date = models.DateTimeField("date published", auto_now_add=True)
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="posts"
@@ -29,7 +31,9 @@ class Post(models.Model):
         null=True, verbose_name="Группа",
         help_text="Запись можно разместить в группе, если это необходимо"
     )
-    image = models.ImageField(upload_to="posts/", blank=True, null=True)
+    image = models.ImageField(
+        upload_to="posts/", blank=True, null=True, verbose_name="Картинка поста"
+    )
 
     def __str__(self):
         return self.text[:15]
@@ -39,9 +43,11 @@ class Post(models.Model):
 
 
 class Comment(models.Model):
-    text = models.TextField(verbose_name="Текст комментария",
-                            help_text="Здесь можно написать весь ваш хейт, "
-                                      "похвалу или конструктивную критику")
+    text = models.TextField(
+        verbose_name="Текст комментария",
+        help_text="Здесь можно написать весь ваш хейт, "
+                  "похвалу или конструктивную критику"
+    )
     created = models.DateTimeField("date published", auto_now_add=True)
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="comments"
@@ -54,7 +60,15 @@ class Comment(models.Model):
 
 
 class Follow(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE,
-                             related_name="follower")
-    author = models.ForeignKey(User, on_delete=models.CASCADE,
-                               related_name="following")
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="follower"
+    )
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="following"
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["user", "author"],
+                                    name="unique follow")
+        ]

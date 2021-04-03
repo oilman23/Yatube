@@ -2,6 +2,7 @@ import shutil
 import tempfile
 
 from django.conf import settings
+from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
 from django.urls import reverse
@@ -44,6 +45,7 @@ class PostPagesTests(TestCase):
         super().tearDownClass()
 
     def setUp(self):
+        self.guest_client = Client()
         self.user = User.objects.create(username="vlados")
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
@@ -53,13 +55,15 @@ class PostPagesTests(TestCase):
         self.user_not_follower = User.objects.create(username="heiter")
         self.authorized_client_not_follower = Client()
         self.authorized_client_not_follower.force_login(self.user_not_follower)
+        Follow.objects.create(user=self.user_follower,
+                              author=PostPagesTests.user)
 
     def test_pages_uses_correct_template(self):
         """Проверка на возвращение правильного шаблона к страницам"""
         templates_pages_names = {
-            "index.html": reverse("index"),
+            "posts/index.html": reverse("index"),
             "posts/new.html": reverse("new_post"),
-            "group.html": reverse("group_posts",
+            "posts/group.html": reverse("group_posts",
                                   kwargs={"slug": PostPagesTests.group.slug}),
             "about/author.html": reverse("about:author"),
             "about/tech.html": reverse("about:tech"),
@@ -146,33 +150,53 @@ class PostPagesTests(TestCase):
         self.assertEqual(response.context["post"].image,
                          PostPagesTests.post.image)
 
-    def test_follow_unfollow_authorized_user(self):
-        """Проверяем, что авторизованный клиент может подписаться и
-        отписаться"""
+    def test_index_page_cache(self):
+        """Проверяем работу кэширования главной страницы"""
+        response = self.authorized_client.get(reverse("index"))
+        content_before_add_post = response.content
+        Post.objects.create(text="текст ещё одного поста",
+                            author=PostPagesTests.user)
+        response_after_add_post = self.authorized_client.get(reverse("index"))
+        content_after_add_post = response_after_add_post.content
+        self.assertEqual(content_before_add_post, content_after_add_post)
+        cache.clear()
+        response_after_clear_cache = self.authorized_client.get(reverse("index"))
+        content_after_clear_cache = response_after_clear_cache.content
+        self.assertNotEqual(content_before_add_post, content_after_clear_cache)
+
+
+    def test_follow_authorized_user(self):
+        """Проверяем, что авторизованный клиент может подписаться"""
         follow_count = Follow.objects.count()
         self.authorized_client.get(
             reverse("profile_follow",
                     kwargs={"username": PostPagesTests.post.author.username}))
         follow_count_after_follow = Follow.objects.count()
         self.assertEqual(follow_count + 1, follow_count_after_follow)
-        self.authorized_client.get(
+
+    def test_unfollow_authorized_user(self):
+        """Проверяем, что авторизованный клиент может отписаться"""
+        follow_count = Follow.objects.count()
+        self.authorized_client_follower.get(
             reverse("profile_unfollow",
                     kwargs={"username": PostPagesTests.post.author.username}))
         follow_count_after_unfollow = Follow.objects.count()
-        self.assertEqual(follow_count_after_unfollow,
-                         follow_count_after_follow - 1)
+        self.assertEqual(follow_count,
+                         follow_count_after_unfollow + 1)
 
     def test_follow_index(self):
-        """Проверяем, что пост у подписанного пользователя появляется в ленте,
-        а не у подписанного-нет"""
-        Follow.objects.create(user=self.user_follower,
-                              author=PostPagesTests.user)
+        """Проверяем, что пост у подписанного пользователя появляется в
+        ленте"""
         response_follower = self.authorized_client_follower.get(reverse(
-            "follow_index"))
-        response_not_follow = self.authorized_client_not_follower.get(reverse(
             "follow_index"))
         self.assertEqual(response_follower.context["page"][0],
                          PostPagesTests.post)
+
+    def test_follow_index_not_follower(self):
+        """Проверяем, что пост у неподписанного пользователя не появляется в
+        ленте"""
+        response_not_follow = self.authorized_client_not_follower.get(reverse(
+            "follow_index"))
         self.assertFalse(response_not_follow.context["page"])
 
 

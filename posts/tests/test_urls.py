@@ -79,8 +79,8 @@ class StaticURLTests(TestCase):
     def test_urls_uses_correct_template(self):
         """Проверяем правильность передаваемого шаблона для страниц сайта"""
         templates_url_names = {
-            "index.html": "/",
-            "group.html": "/group/test-slug/",
+            "posts/index.html": "/",
+            "posts/group.html": "/group/test-slug/",
             "posts/new.html": "/new/",
         }
         for template, reverse_name in templates_url_names.items():

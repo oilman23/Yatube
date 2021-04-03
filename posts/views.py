@@ -11,7 +11,7 @@ def index(request):
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get("page")
     page = paginator.get_page(page_number)
-    return render(request, "index.html", {"page": page})
+    return render(request, "posts/index.html", {"page": page})
 
 
 def group_posts(request, slug):
@@ -20,7 +20,7 @@ def group_posts(request, slug):
     paginator = Paginator(group_posts_list, 10)
     page_number = request.GET.get("page")
     page = paginator.get_page(page_number)
-    return render(request, "group.html", {"group": group, "page": page})
+    return render(request, "posts/group.html", {"group": group, "page": page})
 
 
 @login_required
@@ -43,15 +43,15 @@ def profile(request, username):
     page = paginator.get_page(page_number)
     following = (request.user.is_authenticated and Follow.objects.filter(
         user=request.user, author__username=username).exists())
-    return render(request, "profile.html", {"author": author, "page": page,
+    return render(request, "posts/profile.html", {"author": author, "page": page,
                                             "following": following})
 
 
 def post_view(request, username, post_id):
     post = get_object_or_404(Post, id=post_id, author__username=username)
     form = CommentForm(request.POST or None)
-    comments = Comment.objects.filter(post=post)
-    return render(request, "post.html", {"post": post, "author": post.author,
+    comments = post.comments.all()
+    return render(request, "posts/post.html", {"post": post, "author": post.author,
                                          "comments": comments, "form": form})
 
 
@@ -85,9 +85,11 @@ def server_error(request):
 @login_required
 def add_comment(request, username, post_id):
     form = CommentForm(request.POST or None)
-    post = get_object_or_404(Post, id=post_id)
+    post = get_object_or_404(Post, id=post_id, author__username=username)
+    #Олег, привет, подскажи для чего мы здесь передаем автора? ведь с таким пост айди только один автор и других быть
+    #не может или я не правильно понимаю?
     if not form.is_valid():
-        return render(request, "post.html",
+        return render(request, "posts/post.html",
                       {"form": form, "post": post, "author": post.author})
     comment = form.save(commit=False)
     comment.author = request.user
@@ -106,15 +108,14 @@ def follow_index(request):
         "page": page,
         "paginator": paginator,
     }
-    return render(request, "follow.html", context)
+    return render(request, "posts/follow.html", context)
 
 
 @login_required
 def profile_follow(request, username):
     author = User.objects.get(username=username)
-    if author != request.user and not Follow.objects.filter(user=request.user,
-                                                            author=author):
-        Follow.objects.create(user=request.user, author=author)
+    if author != request.user:
+        Follow.objects.get_or_create(user=request.user, author=author)
     return redirect("profile", username)
 
 

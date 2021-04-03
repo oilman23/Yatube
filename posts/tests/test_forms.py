@@ -6,7 +6,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from posts.models import Post, User, Group
+from posts.models import Post, User, Group, Comment
 
 
 class PostFormTests(TestCase):
@@ -18,6 +18,7 @@ class PostFormTests(TestCase):
             title="Заголовок группы",
             slug="test-slug",
         )
+        cls.guest_client = Client()
         cls.user = User.objects.create(username="vlados")
         cls.authorized_client = Client()
         cls.authorized_client.force_login(cls.user)
@@ -75,3 +76,50 @@ class PostFormTests(TestCase):
         self.assertEqual(Post.objects.last().text,
                          form_data["text"])
         self.assertEqual(response.status_code, 200)
+
+    def test_check_guest_client_cant_create_post(self):
+        """Проверим, что неавторизованный пользователь не может создать пост"""
+        posts_count = Post.objects.count()
+        form_data = {
+            "text": "текст из формы",
+        }
+        PostFormTests.guest_client.post(
+            reverse("new_post"),
+            data=form_data,
+            follow=True
+        )
+        self.assertEqual(Post.objects.count(), posts_count)
+
+    def test_guest_client_cant_add_comment(self):
+        """Проверяем, что не авторизованный пользователь не может
+        комментировать посты"""
+        count_comment = Comment.objects.count()
+        form_data = {
+            "text": "комментарий поста",
+        }
+        PostFormTests.guest_client.post(reverse(
+            "add_comment",
+            kwargs={"username": PostFormTests.post.author.username,
+                    "post_id": PostFormTests.post.id}),
+            data=form_data,
+            follow=True
+        )
+        count_comment_after = Comment.objects.count()
+        self.assertEqual(count_comment, count_comment_after)
+
+    def test_authorized_client_can_add_comment(self):
+        """Проверяем, что авторизованный пользователь может
+        комментировать посты"""
+        count_comment = Comment.objects.count()
+        form_data = {
+            "text": "комментарий поста",
+        }
+        PostFormTests.authorized_client.post(reverse(
+            "add_comment",
+            kwargs={"username": PostFormTests.post.author.username,
+                    "post_id": PostFormTests.post.id}),
+            data=form_data,
+            follow=True
+        )
+        count_comment_after = Comment.objects.count()
+        self.assertEqual(count_comment + 1, count_comment_after)

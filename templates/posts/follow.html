@@ -8,7 +8,10 @@
 
         <h1>Последние обновления на сайте</h1>
 
-        {% include "includes/post_card_index.html" %}
+        {% for post in page %}
+            {% include "includes/post_card.html" with text=post.text username=post.author.username date=post.pub_date %}
+        {% endfor %}
+        {% include "includes/paginator.html" %}
 
     </div>
 
