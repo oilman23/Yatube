@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render, redirect
 from django.core.paginator import Paginator
 
-from .forms import PostForm, CommentForm
+from .forms import PostForm, CommentForm, GroupForm
 from .models import Group, Post, User, Follow
 
 
@@ -32,6 +32,17 @@ def new_post(request):
     post = form.save(commit=False)
     post.author = request.user
     post.save()
+    return redirect("index")
+
+
+@login_required
+def new_group(request):
+    form = GroupForm(request.POST or None, files=request.FILES or None)
+    if not form.is_valid():
+        return render(request, "posts/group_new.html", {"form": form,
+                                                  "is_new": True})
+    group = form.save(commit=False)
+    group.save()
     return redirect("index")
 
 
@@ -78,6 +89,15 @@ def post_edit(request, username, post_id):
     return render(request, "posts/new.html", {"form": form, 'post': post})
 
 
+@login_required
+def post_delete(request, username, post_id):
+    post = get_object_or_404(Post, id=post_id, author__username=username)
+    if post.author != request.user:
+        return redirect("post", username, post_id)
+    post.delete()
+    return redirect("profile", username)
+
+
 def page_not_found(request, exception):
     return render(
         request,
@@ -95,9 +115,6 @@ def server_error(request):
 def add_comment(request, username, post_id):
     form = CommentForm(request.POST or None)
     post = get_object_or_404(Post, id=post_id, author__username=username)
-    # Олег, привет, подскажи для чего мы здесь передаем автора? ведь с таким
-    # пост айди только один автор и других быть
-    # не может или я не правильно понимаю?
     if not form.is_valid():
         return render(request, "posts/post.html",
                       {"form": form, "post": post, "author": post.author})

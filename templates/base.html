@@ -3,17 +3,18 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <title>{% block title %}The Last Social Media You'll Ever Need{% endblock %} | Yatube</title>
+        <title>{% block title %}Соцсеть для twitter-нутых на всю голову{% endblock %} | Yatube</title>
         {% load static %}
         <link rel="stylesheet" href="{% static 'bootstrap/dist/css/bootstrap.min.css' %}">
+        <link rel="stylesheet" type="text/css" href="{% static 'custom.css' %}?20210415">
         <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
         <script src="{% static 'bootstrap/dist/js/bootstrap.min.js' %}"></script>
     </head>
     <body>
         {% include 'includes/nav.html' %}
-        <main>
+        <main class="Site-content">
             <div class="container">
-                <h1>{% block header %}The Last Social Media You'll Ever Need{% endblock header %}</h1>
+                <h1>{% block header %}Соцсеть для twitter-нутых на всю голову{% endblock header %}</h1>
                 {% block content %}
                 {% endblock content %}
             </div>
