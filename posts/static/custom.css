@@ -1,0 +1,41 @@
+body {
+color: #fadd13;
+background: url(https://cdn.pixabay.com/photo/2021/01/22/20/16/heron-5941013_960_720.jpg);
+background-repeat: no-repeat;
+background-size: cover;
+background-attachment: fixed;
+display: flex;
+flex-direction: column;
+min-height: 100%;
+}
+
+a{
+color: #e25e22;
+
+}
+
+.card{
+color: black;
+}
+
+.navbar{
+color: #66FCF1;
+background: #fbbe18;
+}
+
+footer{
+color: #66FCF1;
+background: #fbbe18;
+}
+
+html {
+height: 100%;
+}
+
+.Site-content {
+flex: 1 ;
+}
+
+.nav-item{
+background: grey;
+}
