@@ -14,8 +14,6 @@
 - выполнить команду ```python -m venv venv```
 - выполнить команду ```source venv/Scripts/activate```
 - выполнить команду ```pip install -r requirements.txt```
-- зайти в директорию yatube
-- выполнить команду ```python manage.py makemigrations```
 - выполнить команду ```python manage.py migrate```
 - выполнить команду ```python manage.py runserver```
 
